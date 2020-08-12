@@ -6,12 +6,10 @@ option go_package = "calculatorpb";
 
 service CalculatorService {
   rpc Sum(SumRequest) returns (SumResponse){}
-
   rpc PrimeNumberDecomposition(PNDRequest) returns (stream PNDResponse){}
-
   rpc Average(stream AverageRequest) returns (AverageResponse){}
-
   rpc Max(stream FindMaxRequest) returns (stream FindMaxResponse){}
+  rpc Sqrt(SqrtRequest) returns (SqrtResponse){}
 }
 
 message SumRequest{
@@ -45,4 +43,12 @@ message FindMaxRequest{
 
 message FindMaxResponse{
   int32 result = 1;
+}
+
+message SqrtRequest{
+  int32 number = 1;
+}
+
+message SqrtResponse{
+  double result = 1;
 }

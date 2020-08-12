@@ -2,8 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	pb "github.com/dungnh3/go-grpc-tutorial/calculator/calculatorpb"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"io"
 	"log"
 	"sync"
@@ -28,7 +31,10 @@ func main() {
 	// streaming client => open comment before callAverage function below if you want to test
 	//callAverage(client)
 
-	callMax(client)
+	//
+	//callMax(client)
+
+	callSqrt(client)
 
 	log.Println("service client %v", client)
 }
@@ -126,4 +132,21 @@ func callMax(client pb.CalculatorServiceClient) {
 	}(stream, &wg)
 
 	wg.Wait()
+}
+
+func callSqrt(client pb.CalculatorServiceClient) {
+	resp, err := client.Sqrt(context.Background(), &pb.SqrtRequest{
+		Number: -100,
+	})
+
+	if err != nil {
+		errStatus, _ := status.FromError(err)
+		fmt.Printf("error message %v \n", errStatus.Message())
+		fmt.Printf("error code %v \n", errStatus.Code())
+		if codes.InvalidArgument == errStatus.Code() {
+			log.Fatalf("error %v", errStatus)
+		}
+	}
+
+	log.Printf("sum api response %v \n", resp.Result)
 }

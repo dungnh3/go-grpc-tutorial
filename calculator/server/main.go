@@ -4,8 +4,11 @@ import (
 	"context"
 	pb "github.com/dungnh3/go-grpc-tutorial/calculator/calculatorpb"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"io"
 	"log"
+	"math"
 	"net"
 	"time"
 )
@@ -86,6 +89,17 @@ func (s *server) Max(stream pb.CalculatorService_MaxServer) error {
 			return err
 		}
 	}
+}
+
+func (s *server) Sqrt(ctx context.Context, in *pb.SqrtRequest) (*pb.SqrtResponse, error) {
+	log.Print("sum sqrt \n")
+	num := in.Number
+	if num < 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "input number must great than 0")
+	}
+	return &pb.SqrtResponse{
+		Result: math.Sqrt(float64(num)),
+	}, nil
 }
 
 func main() {
