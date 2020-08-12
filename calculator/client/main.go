@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc"
 	"io"
 	"log"
+	"time"
 )
 
 func main() {
@@ -23,7 +24,10 @@ func main() {
 	// streaming server => open comment before callPrimeNumberDecomposition function below if you want to test
 	//callPrimeNumberDecomposition(client)
 
-	callAverage(client)
+	// streaming client => open comment before callAverage function below if you want to test
+	//callAverage(client)
+
+	callMax(client)
 
 	log.Println("service client %v", client)
 }
@@ -79,4 +83,31 @@ func callAverage(client pb.CalculatorServiceClient) {
 		log.Fatalf("recieve result from server fail %v", err)
 	}
 	log.Printf("result average %v", res.Result)
+}
+
+func callMax(client pb.CalculatorServiceClient) {
+	stream, err := client.Max(context.Background())
+	if err != nil {
+		log.Fatalf("call average api error %v", err)
+	}
+	arr := []int32{1, 2, 3, 4, 5, 6, 100, 50, 200, 1000, 500, 400, 2000}
+	for _, num := range arr {
+		err := stream.Send(&pb.FindMaxRequest{
+			Number: num,
+		})
+		if err != nil {
+			log.Fatalf("send number to server fail %v", err)
+		}
+		log.Printf("send number to server %v", num)
+		resp, err := stream.Recv()
+		if err != nil {
+			log.Fatalf("recieve max from server fail %v", err)
+		}
+		log.Printf("result max %v", resp.Result)
+		time.Sleep(500 * time.Millisecond)
+	}
+	err = stream.CloseSend()
+	if err != nil {
+		log.Fatalf("recieve result from server fail %v", err)
+	}
 }
