@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc"
 	"io"
 	"log"
+	"sync"
 	"time"
 )
 
@@ -90,24 +91,39 @@ func callMax(client pb.CalculatorServiceClient) {
 	if err != nil {
 		log.Fatalf("call average api error %v", err)
 	}
-	arr := []int32{1, 2, 3, 4, 5, 6, 100, 50, 200, 1000, 500, 400, 2000}
-	for _, num := range arr {
-		err := stream.Send(&pb.FindMaxRequest{
-			Number: num,
-		})
-		if err != nil {
-			log.Fatalf("send number to server fail %v", err)
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func(stream pb.CalculatorService_MaxClient, wg *sync.WaitGroup) {
+		defer wg.Done()
+		arr := []int32{1, 2, 3, 4, 5, 6, 100, 50, 200, 1000, 500, 400, 2000}
+		for _, num := range arr {
+			err := stream.Send(&pb.FindMaxRequest{
+				Number: num,
+			})
+			if err != nil {
+				return
+			}
+			time.Sleep(500 * time.Millisecond)
 		}
-		log.Printf("send number to server %v", num)
-		resp, err := stream.Recv()
-		if err != nil {
-			log.Fatalf("recieve max from server fail %v", err)
+		stream.CloseSend()
+	}(stream, &wg)
+
+	go func(stream pb.CalculatorService_MaxClient, wg *sync.WaitGroup) {
+		defer wg.Done()
+		for {
+			resp, err := stream.Recv()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				log.Fatalf("recieve max from server fail %v", err)
+				break
+			}
+			log.Printf("result max %v", resp.Result)
 		}
-		log.Printf("result max %v", resp.Result)
-		time.Sleep(500 * time.Millisecond)
-	}
-	err = stream.CloseSend()
-	if err != nil {
-		log.Fatalf("recieve result from server fail %v", err)
-	}
+	}(stream, &wg)
+
+	wg.Wait()
 }

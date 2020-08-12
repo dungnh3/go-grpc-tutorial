@@ -72,16 +72,19 @@ func (s *server) Max(stream pb.CalculatorService_MaxServer) error {
 			return nil
 		}
 		if err != nil {
-			log.Fatalf("error while find max number %v", err)
+			return err
 		}
 		num := req.Number
 		log.Printf("recieve number from clien %v \n", num)
 		if num > max {
 			max = num
 		}
-		stream.Send(&pb.FindMaxResponse{
+		err = stream.Send(&pb.FindMaxResponse{
 			Result: max,
 		})
+		if err != nil {
+			return err
+		}
 	}
 }
 
