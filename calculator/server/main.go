@@ -4,6 +4,7 @@ import (
 	"context"
 	pb "github.com/dungnh3/go-grpc-tutorial/calculator/calculatorpb"
 	"google.golang.org/grpc"
+	"io"
 	"log"
 	"net"
 	"time"
@@ -35,6 +36,29 @@ func (s *server) PrimeNumberDecomposition(req *pb.PNDRequest,
 		} else {
 			k++
 		}
+	}
+	return nil
+}
+
+func (s *server) Average(stream pb.CalculatorService_AverageServer) error {
+	log.Printf("average call..")
+	var total int32
+	var count int
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			var result float32
+			result = float32(total) / float32(count)
+			resp := &pb.AverageResponse{
+				Result: result,
+			}
+			return stream.SendAndClose(resp)
+		}
+		if err != nil {
+			log.Fatalf("error while average %v", err)
+		}
+		total = total + req.Number
+		count++
 	}
 	return nil
 }

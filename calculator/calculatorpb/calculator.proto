@@ -8,6 +8,8 @@ service CalculatorService {
   rpc Sum(SumRequest) returns (SumResponse){}
 
   rpc PrimeNumberDecomposition(PNDRequest) returns (stream PNDResponse){}
+
+  rpc Average(stream AverageRequest) returns (AverageResponse){}
 }
 
 message SumRequest{
@@ -25,4 +27,12 @@ message PNDRequest{
 
 message PNDResponse{
   int32 result = 2;
+}
+
+message AverageRequest{
+  int32 number = 1;
+}
+
+message AverageResponse{
+  float result = 1;
 }
