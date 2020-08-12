@@ -4,6 +4,7 @@ import (
 	"context"
 	pb "github.com/dungnh3/go-grpc-tutorial/calculator/calculatorpb"
 	"google.golang.org/grpc"
+	"io"
 	"log"
 )
 
@@ -15,7 +16,8 @@ func main() {
 	defer clientConn.Close()
 
 	client := pb.NewCalculatorServiceClient(clientConn)
-	callSum(client)
+	//callSum(client)
+	callPrimeNumberDecomposition(client)
 
 	log.Println("service client %v", client)
 }
@@ -31,4 +33,23 @@ func callSum(client pb.CalculatorServiceClient) {
 	}
 
 	log.Printf("sum api response %v \n", resp.Result)
+}
+
+func callPrimeNumberDecomposition(client pb.CalculatorServiceClient) {
+	stream, err := client.PrimeNumberDecomposition(context.Background(), &pb.PNDRequest{Number: 120})
+	if err != nil {
+		log.Fatalf("call pnd api error %v", err)
+	}
+	if err != nil {
+		log.Fatalf("call PND failed %v", err)
+	}
+
+	for {
+		resp, err := stream.Recv()
+		if err == io.EOF {
+			log.Println("server finish streaming")
+			return
+		}
+		log.Println("prime number response %v", resp.Result)
+	}
 }
