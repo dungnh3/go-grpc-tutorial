@@ -31,10 +31,15 @@ func main() {
 	// streaming client => open comment before callAverage function below if you want to test
 	//callAverage(client)
 
-	//
+	// bi directional => open comment before callMax function below if you want to test
 	//callMax(client)
 
-	callSqrt(client)
+	// error handling => open comment before callSqrt function below if you want to test
+	//callSqrt(client)
+
+	// handle with timeout (deadline) => open comment before callSumWithDeadline function
+	callSumWithDeadline(client, 1*time.Second) // -> timeout
+	callSumWithDeadline(client, 5*time.Second) // -> not timeout
 
 	log.Println("service client %v", client)
 }
@@ -49,6 +54,29 @@ func callSum(client pb.CalculatorServiceClient) {
 		log.Fatalf("call sum api error %v", err)
 	}
 
+	log.Printf("sum api response %v \n", resp.Result)
+}
+
+func callSumWithDeadline(client pb.CalculatorServiceClient, timeout time.Duration) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	resp, err := client.SumWithDealine(ctx, &pb.SumRequest{
+		Number1: 5,
+		Number2: 6,
+	})
+
+	if err != nil {
+		errStatus, _ := status.FromError(err)
+		fmt.Printf("error message %v \n", errStatus.Message())
+		fmt.Printf("error code %v \n", errStatus.Code())
+		if codes.DeadlineExceeded == errStatus.Code() {
+			log.Printf("deadline error %v", errStatus)
+		} else {
+			log.Printf("err %v \n", err)
+		}
+		return
+	}
 	log.Printf("sum api response %v \n", resp.Result)
 }
 

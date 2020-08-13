@@ -6,6 +6,7 @@ option go_package = "calculatorpb";
 
 service CalculatorService {
   rpc Sum(SumRequest) returns (SumResponse){}
+  rpc SumWithDealine(SumRequest) returns (SumResponse){}
   rpc PrimeNumberDecomposition(PNDRequest) returns (stream PNDResponse){}
   rpc Average(stream AverageRequest) returns (AverageResponse){}
   rpc Max(stream FindMaxRequest) returns (stream FindMaxResponse){}

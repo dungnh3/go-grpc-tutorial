@@ -24,6 +24,15 @@ func (s *server) Sum(ctx context.Context, in *pb.SumRequest) (*pb.SumResponse, e
 	}, nil
 }
 
+func (s *server) SumWithDealine(ctx context.Context, in *pb.SumRequest) (*pb.SumResponse, error) {
+	log.Print("sum with deadline.. \n")
+	result := in.Number1 + in.Number2
+	time.Sleep(3 * time.Second)
+	return &pb.SumResponse{
+		Result: result,
+	}, nil
+}
+
 func (s *server) PrimeNumberDecomposition(req *pb.PNDRequest,
 	stream pb.CalculatorService_PrimeNumberDecompositionServer) error {
 	log.Printf("prime number decomposition call..")
