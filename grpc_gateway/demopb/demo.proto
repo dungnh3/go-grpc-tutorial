@@ -5,9 +5,10 @@ package demo.grpc.gateway;
 option go_package = "demo.pb";
 
 import "google/api/annotations.proto";
+import "validate/validate.proto";
 
 service MessageService {
-  rpc Echo(Message) returns (Message){
+  rpc Echo(MessageRequest) returns (MessageResponse){
     option (google.api.http) = {
       post: "/v1/example/echo"
       body: "*"
@@ -15,6 +16,10 @@ service MessageService {
   };
 }
 
-message Message{
+message MessageRequest{
+  string msg = 1 [(validate.rules).string.len = 3];
+}
+
+message MessageResponse {
   string msg = 1;
 }

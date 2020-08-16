@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	pb "github.com/dungnh3/go-grpc-tutorial/grpc_gateway/demopb"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -11,9 +13,9 @@ import (
 type server struct {
 }
 
-func (s *server) Echo(ctx context.Context, in *pb.Message) (*pb.Message, error) {
-	return &pb.Message{
-		Msg: in.Msg,
+func (s *server) Echo(ctx context.Context, in *pb.MessageRequest) (*pb.MessageResponse, error) {
+	return &pb.MessageResponse{
+		Msg: in.Msg + "dung",
 	}, nil
 }
 
@@ -23,7 +25,14 @@ func main() {
 		log.Fatalf("err while create listen %v", err)
 	}
 
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc_middleware.WithUnaryServerChain(
+			grpc_validator.UnaryServerInterceptor(),
+		),
+		grpc_middleware.WithStreamServerChain(
+			grpc_validator.StreamServerInterceptor(),
+		),
+	)
 
 	pb.RegisterMessageServiceServer(s, &server{})
 
