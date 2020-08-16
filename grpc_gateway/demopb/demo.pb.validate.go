@@ -52,6 +52,8 @@ func (m *MessageRequest) Validate() error {
 
 	}
 
+	// no validation rules for Number
+
 	return nil
 }
 

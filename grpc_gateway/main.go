@@ -15,7 +15,13 @@ type server struct {
 
 func (s *server) Echo(ctx context.Context, in *pb.MessageRequest) (*pb.MessageResponse, error) {
 	return &pb.MessageResponse{
-		Msg: in.Msg + "dung",
+		Msg: func() string {
+			var i int32
+			for i = 0; i < in.Number; i++ {
+				in.Msg = in.Msg + " hello"
+			}
+			return in.Msg
+		}(),
 	}, nil
 }
 

@@ -18,6 +18,7 @@ service MessageService {
 
 message MessageRequest{
   string msg = 1 [(validate.rules).string.len = 3];
+  int32 number = 2;
 }
 
 message MessageResponse {
